@@ -154,9 +154,7 @@ fn count_neighbours( board : &Board, col: usize, row: usize ) -> i32 {
             if (c == col) && (r == row) {
                 continue;
             }
-            let neighbour = board.get(c, r);
-            //_debug_board(board, c, r);
-            if neighbour {
+            if board.get(c, r) {
                 count += 1;
             }
         }
