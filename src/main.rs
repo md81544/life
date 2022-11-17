@@ -76,7 +76,7 @@ mod tests {
     }
 
     #[test]
-    fn test_generation() {
+    fn test_generation_spawn() {
         // an empty cell with three neighbours should spawn
         let mut board = Board::new(10, 5);
         // 8, 2 is empty but has three neighbours below it
@@ -87,29 +87,53 @@ mod tests {
         next_generation(&mut board);
         assert!(board.get(8, 2) == true);
     }
-}
 
-fn _debug_board( board : &Board, col: usize, row: usize ) {
-    println!("Board dimensions: {} cols x {} rows", board.cols, board.rows);
-    println!("Requesting col = {}, row = {}", col, row);
-    println!("Value is {}", board.get(col, row));
-
-    for row in 0..board.rows {
-        for col in 0..board.cols {
-            print!("{} ", if board.get(col, row) { "◼︎" } else { "◻︎" });
-        }
-        println!("");
+    #[test]
+    fn test_generation_die() {
+        // a cell with no neighbours should die
+        let mut board = Board::new(10, 5);
+        board.set(7, 3, true);
+        next_generation(&mut board);
+        assert!(board.get(7, 3) == false);
     }
+
+    #[test]
+    fn test_generation_survive() {
+        // an existing cell with two or three neighbours should survive
+        let mut board = Board::new(10, 5);
+        board.set(8, 2, true);
+        board.set(7, 3, true);
+        board.set(8, 3, true);
+        board.set(9, 3, true);
+        next_generation(&mut board);
+        assert!(board.get(8, 2) == true);
+    }
+
+    #[test]
+    fn test_generation_overpopulation() {
+        // an existing cell with more than three neighbours should die
+        let mut board = Board::new(10, 5);
+        board.set(8, 2, true);
+        board.set(9, 2, true);
+        board.set(7, 3, true);
+        board.set(8, 3, true);
+        board.set(9, 3, true);
+        next_generation(&mut board);
+        assert!(board.get(8, 2) == false);
+    }
+
 }
 
 fn display_board( window : &mut RenderWindow, board : &Board, cell_size: u32 ) {
     let cols = board.cols;
     let rows = board.rows;
+    let mut rng = rand::thread_rng();
     for row in 0..rows {
         for col in 0..cols {
             if board.get(col, row) == true {
-                let mut circ = CircleShape::new((cell_size as f32 / 2.2) as f32, 30);
-                circ.set_fill_color(Color::rgb(0, 128, 0));
+                let mut circ = CircleShape::new((cell_size as f32 / 2.0) as f32, 30);
+                let green = rng.gen_range(64..=255);
+                circ.set_fill_color(Color::rgb(0, green, 0));
                 circ.set_position(Vector2f::new(
                     (col * cell_size as usize) as f32,
                     (row * cell_size as usize) as f32));
