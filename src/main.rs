@@ -132,7 +132,7 @@ fn display_board( window : &mut RenderWindow, board : &Board, cell_size: u32 ) {
         for col in 0..cols {
             if board.get(col, row) == true {
                 let mut circ = CircleShape::new((cell_size as f32 / 2.0) as f32, 30);
-                let green = rng.gen_range(64..=255);
+                let green = rng.gen_range(96..=150);
                 circ.set_fill_color(Color::rgb(0, green, 0));
                 circ.set_position(Vector2f::new(
                     (col * cell_size as usize) as f32,
