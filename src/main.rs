@@ -196,7 +196,7 @@ fn main() {
     let screen_height = VideoMode::desktop_mode().height;
     let ratio: f32 = screen_width as f32 / screen_height as f32;
 
-    let window_width = 2000;
+    let window_width = 1920;
     let window_height = ( window_width as f32 /ratio ) as u32;
     let cell_size = 16;
 
