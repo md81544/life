@@ -143,6 +143,7 @@ fn count_neighbours( board : &Board, col: usize, row: usize ) -> i32 {
 fn next_generation( board : &mut Board ) {
     let cols = board.cols;
     let rows = board.rows;
+    let mut new_board = Board::new(cols, rows);
     for row in 0..rows {
         for col in 0..cols {
             let c = count_neighbours(&board, col, row);
@@ -151,18 +152,19 @@ fn next_generation( board : &mut Board ) {
                 if c == 2 || c == 3{
                     // an existing cell with 2-3 neighbours
                     // will just continue to live
-                    continue;
+                    new_board.set(col, row, true);
                 } else {
-                    board.set(col, row, false);
+                    new_board.set(col, row, false);
                 }
             } else {
                 // non-occupied slot
                 if c == 3 {
-                    board.set(col, row, true);
+                    new_board.set(col, row, true);
                 }
             }
         }
     }
+    *board = new_board;
 }
 
 fn main() {
@@ -180,22 +182,17 @@ fn main() {
         Style::DEFAULT,
         &ContextSettings::default(),
     );
-    window.set_framerate_limit(10);
+    window.set_framerate_limit(16);
     window.set_position(Vector2i::new(50, 50));
 
     let rows = (window_height / cell_size) as usize;
     let cols = (window_width / cell_size) as usize;
     let mut board = Board::new(cols, rows);
 
-    //let mut rng = rand::thread_rng();
-    //for _ in 0..500 {
-    //    board.set(rng.gen_range(0..cols), rng.gen_range(0..rows), true);
-    //}
-    board.set(2,1,true);
-    board.set(3,2,true);
-    board.set(1,3,true);
-    board.set(2,3,true);
-    board.set(3,3,true);
+    let mut rng = rand::thread_rng();
+    for _ in 0..2000 {
+        board.set(rng.gen_range(0..cols), rng.gen_range(0..rows), true);
+    }
 
     // Main Loop
     while window.is_open() {
