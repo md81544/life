@@ -39,7 +39,7 @@ impl Board {
         }
     }
 
-    fn randomize(&mut self, count: usize) {
+    fn randomise(&mut self, count: usize) {
         let mut rng = rand::thread_rng();
         for _ in 0..count {
             self.data[rng.gen_range(0..self.cols * self.rows)] = true;
@@ -224,7 +224,7 @@ fn main() {
     let cols = (window_width / cell_size) as usize;
     let mut board = Board::new(cols, rows);
 
-    board.randomize(2000);
+    board.randomise(2000);
 
     // Main Loop
     while window.is_open() {
@@ -241,7 +241,7 @@ fn main() {
                         },
                         Key::R => {
                             board.clear();
-                            board.randomize(2000);
+                            board.randomise(2000);
                         },
                         _ => {}
                     }
