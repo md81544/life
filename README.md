@@ -32,4 +32,5 @@ Just the usual `cargo build`.
 Just the usual `cargo run`.
 
 ## Running unit tests
-Just the usual `cargo test`
+Just the usual `cargo test`.
+
