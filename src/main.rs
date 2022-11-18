@@ -32,6 +32,19 @@ impl Board {
         let offset = row * self.cols + col;
         self.data[offset] = value;
     }
+
+    fn clear(&mut self) {
+        for i in &mut self.data {
+            *i = false;
+        }
+    }
+
+    fn randomize(&mut self, count: usize) {
+        let mut rng = rand::thread_rng();
+        for _ in 0..count {
+            self.data[rng.gen_range(0..self.cols * self.rows)] = true;
+        }
+    }
 }
 
 #[cfg(test)]
@@ -211,25 +224,24 @@ fn main() {
     let cols = (window_width / cell_size) as usize;
     let mut board = Board::new(cols, rows);
 
-    let mut rng = rand::thread_rng();
-    for _ in 0..2000 {
-        board.set(rng.gen_range(0..cols), rng.gen_range(0..rows), true);
-    }
+    board.randomize(2000);
 
     // Main Loop
     while window.is_open() {
         while let Some(event) = window.poll_event() {
             match event {
                 Event::Closed => window.close(),
-                Event::KeyReleased { code, ctrl, .. } => {
+                Event::KeyReleased { code, .. } => {
                     match code {
                         Key::Escape => {
                             window.close();
                         },
                         Key::Q => {
-                            if ctrl {
-                                window.close();
-                            }
+                            window.close();
+                        },
+                        Key::R => {
+                            board.clear();
+                            board.randomize(2000);
                         },
                         _ => {}
                     }
