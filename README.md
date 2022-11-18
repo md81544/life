@@ -1,7 +1,9 @@
 # Conway's Game of Life in Rust
 
 ## Rationale
-Just a bit of fun as a rust learning exercise.
+Just a bit of retro fun as a rust learning exercise.
+
+![Screen shot](https://www.martyndavis.com/wp-content/uploads/2022/11/life.png "")
 
 ## Pre-requisites
 ### Linux (including WSL)
