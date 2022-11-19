@@ -141,25 +141,19 @@ fn display_board( window : &mut RenderWindow, board : &Board, cell_size: u32 ) {
     let rows = board.rows;
     for row in 0..rows {
         for col in 0..cols {
-            if board.get(col, row) == true {
-                let radius = cell_size as f32 / 2.0;
-                let mut circ = CircleShape::new(radius, 30);
-                circ.set_origin((radius, radius));
+            let cell_present = board.get(col, row);
+            let radius = cell_size as f32 / if cell_present { 2.0 } else { 3.0 };
+            let mut circ = CircleShape::new(radius, 30);
+            circ.set_origin((radius, radius));
+            circ.set_position(Vector2f::new(
+                (col * cell_size as usize + (cell_size / 2) as usize) as f32,
+                (row * cell_size as usize + (cell_size / 2) as usize) as f32));
+            if cell_present {
                 circ.set_fill_color(Color::rgb(0, 160, 0));
-                circ.set_position(Vector2f::new(
-                    (col * cell_size as usize + (cell_size / 2) as usize) as f32,
-                    (row * cell_size as usize + (cell_size / 2) as usize) as f32));
-                window.draw(&circ);
             } else {
-                let radius = cell_size as f32 / 3.0;
-                let mut circ = CircleShape::new(radius, 30);
-                circ.set_origin((radius, radius));
                 circ.set_fill_color(Color::rgb(32, 64, 32));
-                circ.set_position(Vector2f::new(
-                    (col * cell_size as usize + (cell_size / 2) as usize) as f32,
-                    (row * cell_size as usize + (cell_size / 2) as usize) as f32));
-                window.draw(&circ);
             }
+            window.draw(&circ);
         }
     }
 }
