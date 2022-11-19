@@ -134,7 +134,6 @@ mod tests {
         next_generation(&mut board);
         assert!(board.get(8, 2) == false);
     }
-
 }
 
 fn display_board( window : &mut RenderWindow, board : &Board, cell_size: u32 ) {
@@ -144,12 +143,23 @@ fn display_board( window : &mut RenderWindow, board : &Board, cell_size: u32 ) {
     for row in 0..rows {
         for col in 0..cols {
             if board.get(col, row) == true {
-                let mut circ = CircleShape::new((cell_size as f32 / 2.0) as f32, 30);
+                let radius = cell_size as f32 / 2.0;
+                let mut circ = CircleShape::new(radius, 30);
+                circ.set_origin((radius, radius));
                 let green = rng.gen_range(96..=150);
                 circ.set_fill_color(Color::rgb(0, green, 0));
                 circ.set_position(Vector2f::new(
-                    (col * cell_size as usize) as f32,
-                    (row * cell_size as usize) as f32));
+                    (col * cell_size as usize + (cell_size / 2) as usize) as f32,
+                    (row * cell_size as usize + (cell_size / 2) as usize) as f32));
+                window.draw(&circ);
+            } else {
+                let radius = cell_size as f32 / 3.0;
+                let mut circ = CircleShape::new(radius, 30);
+                circ.set_origin((radius, radius));
+                circ.set_fill_color(Color::rgb(32, 64, 32));
+                circ.set_position(Vector2f::new(
+                    (col * cell_size as usize + (cell_size / 2) as usize) as f32,
+                    (row * cell_size as usize + (cell_size / 2) as usize) as f32));
                 window.draw(&circ);
             }
         }
@@ -219,6 +229,7 @@ fn main() {
     );
     window.set_framerate_limit(16);
     window.set_position(Vector2i::new(50, 50));
+    window.set_mouse_cursor_visible(false);
 
     let rows = (window_height / cell_size) as usize;
     let cols = (window_width / cell_size) as usize;
