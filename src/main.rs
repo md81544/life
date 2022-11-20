@@ -4,6 +4,14 @@ use sfml::graphics::{
 use sfml::system::{Vector2i, Vector2f};
 use sfml::window::{ContextSettings, Event, Key, Style, VideoMode};
 use rand::Rng;
+use clap::Parser;
+
+#[derive(Parser, Debug)]
+#[command(author, version, about, long_about = None)]
+struct Args {
+   #[arg(short, long)]
+   fullscreen: bool,
+}
 
 struct Board {
     rows: usize,
@@ -241,6 +249,9 @@ fn next_generation( board : &mut Board ) {
 }
 
 fn main() {
+
+    let args = Args::parse();
+
     let screen_width  = VideoMode::desktop_mode().width;
     let screen_height = VideoMode::desktop_mode().height;
     let ratio: f32 = screen_width as f32 / screen_height as f32;
@@ -258,7 +269,7 @@ fn main() {
     let mut window = RenderWindow::new(
         (window_width, window_height),
         "Conway's Life",
-        if fs_count > 0 {Style::FULLSCREEN} else {Style::DEFAULT},
+        if fs_count > 0 && args.fullscreen {Style::FULLSCREEN} else {Style::DEFAULT},
         &ContextSettings::default(),
     );
     window.set_framerate_limit(16);
