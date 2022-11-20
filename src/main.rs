@@ -245,14 +245,20 @@ fn main() {
     let screen_height = VideoMode::desktop_mode().height;
     let ratio: f32 = screen_width as f32 / screen_height as f32;
 
-    let window_width = 1920;
+    // There's a bug in SFML on Mac which returns a zero-element
+    // array of fullscreen modes, which causes a segfault when
+    // using fullscreen. So we count the modes and only use
+    // fullscreen if the count is > 0
+    let fs_count = VideoMode::fullscreen_modes().into_iter().count();
+
+    let window_width = if screen_width >= 1920 { 1920 } else { screen_width };
     let window_height = ( window_width as f32 /ratio ) as u32;
     let cell_size = 16;
 
     let mut window = RenderWindow::new(
         (window_width, window_height),
         "Conway's Life",
-        Style::DEFAULT,
+        if fs_count > 0 {Style::FULLSCREEN} else {Style::DEFAULT},
         &ContextSettings::default(),
     );
     window.set_framerate_limit(16);
