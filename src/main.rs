@@ -9,12 +9,18 @@ struct Board {
     rows: usize,
     cols: usize,
     data: Vec<bool>,
+    colours: Vec<u8>,
 }
 
 impl Board {
     fn new(col: usize, row: usize) -> Board {
         let vec = vec![false; col * row];
-        Board{ rows: row, cols: col, data: vec }
+        let mut colours = vec![0; col * row];
+        let mut rng = rand::thread_rng();
+        for i in &mut colours {
+            *i = rng.gen_range(128..=255);
+        }
+        Board{ rows: row, cols: col, data: vec, colours: colours }
     }
 
     fn get(&self, col: usize, row: usize) -> bool {
@@ -31,6 +37,22 @@ impl Board {
         }
         let offset = row * self.cols + col;
         self.data[offset] = value;
+    }
+
+    fn get_colour(&self, col: usize, row: usize) -> u8 {
+        if row >= self.rows || col >= self.cols {
+            panic!("Out of bounds");
+        }
+        let offset = row * self.cols + col;
+        return self.colours[offset];
+    }
+
+    fn set_colour(&mut self, col: usize, row: usize, value: u8) {
+        if row >= self.rows || col >= self.cols {
+            panic!("Out of bounds");
+        }
+        let offset = row * self.cols + col;
+        self.colours[offset] = value;
     }
 
     fn clear(&mut self) {
@@ -65,6 +87,18 @@ mod tests {
     fn test_out_of_bounds() {
         let board = Board::new(10, 3);
         board.get(1, 10);
+    }
+
+    #[test]
+    fn test_colours() {
+        let mut board = Board::new(3, 3);
+        board.set_colour(0, 0, 64);
+        board.set_colour(2, 2, 128);
+        assert!(board.get_colour(0, 0) == 64);
+        // 1, 1 is unset; it should have been initialised to a
+        // random number in the range 128..=255
+        assert!(board.get_colour(1, 1) >= 128);
+        assert!(board.get_colour(2, 2) == 128);
     }
 
     #[test]
@@ -136,7 +170,7 @@ mod tests {
     }
 }
 
-fn display_board( window : &mut RenderWindow, board : &Board, cell_size: u32 ) {
+fn display_board( window : &mut RenderWindow, board : &mut Board, cell_size: u32 ) {
     let cols = board.cols;
     let rows = board.rows;
     for row in 0..rows {
@@ -149,7 +183,7 @@ fn display_board( window : &mut RenderWindow, board : &Board, cell_size: u32 ) {
                 (col * cell_size as usize + (cell_size / 2) as usize) as f32,
                 (row * cell_size as usize + (cell_size / 2) as usize) as f32));
             if cell_present {
-                circ.set_fill_color(Color::rgb(0, 160, 0));
+                circ.set_fill_color(Color::rgb(0, board.get_colour(col, row), 0));
             } else {
                 circ.set_fill_color(Color::rgb(32, 64, 32));
             }
@@ -183,6 +217,8 @@ fn next_generation( board : &mut Board ) {
     let mut new_board = Board::new(cols, rows);
     for row in 0..rows {
         for col in 0..cols {
+            let colour = board.get_colour(col, row);
+            new_board.set_colour(col, row, colour);
             let c = count_neighbours(&board, col, row);
             if board.get(col, row) {
                 // occupied slot
@@ -253,7 +289,7 @@ fn main() {
             }
         }
         window.clear(Color::BLACK);
-        display_board(&mut window, &board, cell_size);
+        display_board(&mut window, &mut board, cell_size);
         next_generation(&mut board);
         window.display();
     }
