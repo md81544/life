@@ -1,16 +1,14 @@
-use sfml::graphics::{
-    Color, RenderTarget, RenderWindow, Transformable, CircleShape, Shape
-};
-use sfml::system::{Vector2i, Vector2f};
-use sfml::window::{ContextSettings, Event, Key, Style, VideoMode};
-use rand::Rng;
 use clap::Parser;
+use rand::Rng;
+use sfml::graphics::{CircleShape, Color, RenderTarget, RenderWindow, Shape, Transformable};
+use sfml::system::{Vector2f, Vector2i};
+use sfml::window::{ContextSettings, Event, Key, Style, VideoMode};
 
 #[derive(Parser, Debug)]
 #[command(author, version, about, long_about = None)]
 struct Args {
-   #[arg(short, long)]
-   fullscreen: bool,
+    #[arg(short, long)]
+    fullscreen: bool,
 }
 
 struct Board {
@@ -28,7 +26,12 @@ impl Board {
         for i in &mut colours {
             *i = rng.gen_range(128..=255);
         }
-        Board{ rows: row, cols: col, data: vec, colours: colours }
+        Board {
+            rows: row,
+            cols: col,
+            data: vec,
+            colours: colours,
+        }
     }
 
     fn get(&self, col: usize, row: usize) -> bool {
@@ -178,7 +181,7 @@ mod tests {
     }
 }
 
-fn display_board( window : &mut RenderWindow, board : &mut Board, cell_size: u32 ) {
+fn display_board(window: &mut RenderWindow, board: &mut Board, cell_size: u32) {
     let cols = board.cols;
     let rows = board.rows;
     for row in 0..rows {
@@ -189,7 +192,8 @@ fn display_board( window : &mut RenderWindow, board : &mut Board, cell_size: u32
             circ.set_origin((radius, radius));
             circ.set_position(Vector2f::new(
                 (col * cell_size as usize + (cell_size / 2) as usize) as f32,
-                (row * cell_size as usize + (cell_size / 2) as usize) as f32));
+                (row * cell_size as usize + (cell_size / 2) as usize) as f32,
+            ));
             if cell_present {
                 circ.set_fill_color(Color::rgb(0, board.get_colour(col, row), 0));
             } else {
@@ -200,12 +204,20 @@ fn display_board( window : &mut RenderWindow, board : &mut Board, cell_size: u32
     }
 }
 
-fn count_neighbours( board : &Board, col: usize, row: usize ) -> i32 {
+fn count_neighbours(board: &Board, col: usize, row: usize) -> i32 {
     let mut count = 0;
     let min_col = if col > 0 { col - 1 } else { 0 };
-    let max_col = if col < board.cols - 1 { col + 1 } else { board.cols - 1 };
+    let max_col = if col < board.cols - 1 {
+        col + 1
+    } else {
+        board.cols - 1
+    };
     let min_row = if row > 0 { row - 1 } else { 0 };
-    let max_row = if row < board.rows - 1 { row + 1 } else { board.rows - 1 };
+    let max_row = if row < board.rows - 1 {
+        row + 1
+    } else {
+        board.rows - 1
+    };
     for r in min_row..=max_row {
         for c in min_col..=max_col {
             if (c == col) && (r == row) {
@@ -219,7 +231,7 @@ fn count_neighbours( board : &Board, col: usize, row: usize ) -> i32 {
     count
 }
 
-fn next_generation( board : &mut Board ) {
+fn next_generation(board: &mut Board) {
     let cols = board.cols;
     let rows = board.rows;
     let mut new_board = Board::new(cols, rows);
@@ -230,7 +242,7 @@ fn next_generation( board : &mut Board ) {
             let c = count_neighbours(&board, col, row);
             if board.get(col, row) {
                 // occupied slot
-                if c == 2 || c == 3{
+                if c == 2 || c == 3 {
                     // an existing cell with 2-3 neighbours
                     // will just continue to live
                     new_board.set(col, row, true);
@@ -249,10 +261,9 @@ fn next_generation( board : &mut Board ) {
 }
 
 fn main() {
-
     let args = Args::parse();
 
-    let screen_width  = VideoMode::desktop_mode().width;
+    let screen_width = VideoMode::desktop_mode().width;
     let screen_height = VideoMode::desktop_mode().height;
     let ratio: f32 = screen_width as f32 / screen_height as f32;
 
@@ -262,14 +273,22 @@ fn main() {
     // fullscreen if the count is > 0
     let fs_count = VideoMode::fullscreen_modes().into_iter().count();
 
-    let window_width = if screen_width >= 1920 { 1920 } else { screen_width };
-    let window_height = ( window_width as f32 /ratio ) as u32;
+    let window_width = if screen_width >= 1920 {
+        1920
+    } else {
+        screen_width
+    };
+    let window_height = (window_width as f32 / ratio) as u32;
     let cell_size = 16;
 
     let mut window = RenderWindow::new(
         (window_width, window_height),
         "Conway's Life",
-        if fs_count > 0 && args.fullscreen {Style::FULLSCREEN} else {Style::DEFAULT},
+        if fs_count > 0 && args.fullscreen {
+            Style::FULLSCREEN
+        } else {
+            Style::DEFAULT
+        },
         &ContextSettings::default(),
     );
     window.set_framerate_limit(16);
@@ -287,20 +306,18 @@ fn main() {
         while let Some(event) = window.poll_event() {
             match event {
                 Event::Closed => window.close(),
-                Event::KeyReleased { code, .. } => {
-                    match code {
-                        Key::Escape => {
-                            window.close();
-                        },
-                        Key::Q => {
-                            window.close();
-                        },
-                        Key::R => {
-                            board.clear();
-                            board.randomise(2000);
-                        },
-                        _ => {}
+                Event::KeyReleased { code, .. } => match code {
+                    Key::Escape => {
+                        window.close();
                     }
+                    Key::Q => {
+                        window.close();
+                    }
+                    Key::R => {
+                        board.clear();
+                        board.randomise(2000);
+                    }
+                    _ => {}
                 },
                 _ => {} // ignore other events
             }
