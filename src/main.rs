@@ -3,6 +3,7 @@ use rand::Rng;
 use sfml::graphics::{CircleShape, Color, RenderTarget, RenderWindow, Shape, Transformable};
 use sfml::system::{Vector2f, Vector2i};
 use sfml::window::{ContextSettings, Event, Key, Style, VideoMode};
+use std::env;
 
 #[derive(Parser, Debug)]
 #[command(author, version, about, long_about = None)]
@@ -263,8 +264,13 @@ fn next_generation(board: &mut Board) {
 fn main() {
     let args = Args::parse();
 
-    let screen_width = VideoMode::desktop_mode().width;
-    let screen_height = VideoMode::desktop_mode().height;
+    let mut screen_width = VideoMode::desktop_mode().width;
+    let mut screen_height = VideoMode::desktop_mode().height;
+    if env::consts::OS == "macos" {
+        // hack to work around bug introduced in SFML 2.6 vs 2.5
+        screen_height /= 2;
+        screen_width /= 2;
+    }
     let ratio: f32 = screen_width as f32 / screen_height as f32;
 
     // There's a bug in SFML on Mac which returns a zero-element
@@ -273,12 +279,9 @@ fn main() {
     // fullscreen if the count is > 0
     let fs_count = VideoMode::fullscreen_modes().into_iter().count();
 
-    let window_width = if screen_width >= 1920 {
-        1920
-    } else {
-        screen_width
-    };
+    let window_width = (screen_width as f32 * 0.8) as u32;
     let window_height = (window_width as f32 / ratio) as u32;
+
     let cell_size = 16;
 
     let mut window = RenderWindow::new(
